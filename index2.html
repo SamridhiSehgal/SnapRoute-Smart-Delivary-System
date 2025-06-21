@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SnapRoute</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #dff9fb, #c7ecee);
+    }
+    header {
+      background-color: #130f40;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    header img {
+      vertical-align: middle;
+    }
+    .logo-title {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    h1, h2, h3 {
+      margin: 0.5rem 0;
+    }
+    main {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+    #routeForm {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+    }
+    label, input {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button[type="submit"] {
+      background-color: #0984e3;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button[type="submit"]:hover {
+      background-color: #74b9ff;
+    }
+    #map {
+      height: 400px;
+      border-radius: 10px;
+      display: block;
+      margin-bottom: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 1rem;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    table th, table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    table th {
+      background-color: #0097e6;
+      color: white;
+    }
+    table tr:hover {
+      background-color: #f1f1f1;
+    }
+    .footer-content {
+      text-align: center;
+      padding: 1rem;
+      background-color: #dcdde1;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo-title">
+      <img src="SnapRoute.png" alt="SnapRoute" width="100" height="100" />
+      <div>
+        <h1>SnapRoute</h1>
+        <h3><i>Smart Traffic Navigation for Delivery Boys</i></h3>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <form id="routeForm">
+      <label for="from">From:</label>
+      <input type="text" id="from" name="from" placeholder="Enter starting location" required />
+
+      <label for="to">To:</label>
+      <input type="text" id="to" name="to" placeholder="Enter destination" required />
+
+      <button type="submit">Find Best Route</button>
+    </form>
+
+    <div id="map"></div>
+
+    <section id="results">
+      <h3>Shortest Path (Dijkstra)</h3>
+      <table id="dijkstraTable" style="display: none;">
+        <thead>
+          <tr><th>Path</th><th>Cost</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <h3>K Shortest Paths</h3>
+      <table id="kPathsTable" style="display: none;">
+        <thead>
+          <tr><th>#</th><th>Path</th><th>Cost</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer class="footer-content">
+    <p>&copy; 2025 SnapRoute | Developed by Team Algorithmic Alphas</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
+  <script>
+    // Initialize map centered on Dehradun
+    const map = L.map('map').setView([30.3165, 78.0322], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    let routeControl = null;
+    let kPathLines = [];
+
+    // Color palette for K-shortest paths
+    const colors = ['red', 'green', 'orange', 'purple', 'brown', 'magenta', 'cyan'];
+
+    // Helper function: Geocode a location to latlng using Nominatim restricted to Dehradun
+    async function geocodeLocation(place) {
+      // Dehradun bounding box approx: left=77.90, top=30.41, right=78.22, bottom=30.05
+      const viewbox = "77.90,30.41,78.22,30.05";  // left, top, right, bottom
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(place)}&viewbox=${viewbox}&bounded=1`);
+      const data = await res.json();
+      if (data.length) {
+        return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+      }
+      return null;
+    }
+
+    // Helper function: Convert an array of place names to latlng array (for polylines)
+    async function placesToLatLngs(path) {
+      const latlngs = [];
+      for (const place of path) {
+        const ll = await geocodeLocation(place);
+        if (ll) latlngs.push(ll);
+        else console.warn(`Could not geocode: ${place}`);
+      }
+      return latlngs;
+    }
+
+    document.getElementById("routeForm").addEventListener("submit", async function(event) {
+      event.preventDefault();
+      const from = document.getElementById("from").value.trim();
+      const to = document.getElementById("to").value.trim();
+
+      // Clear previous routes
+      if (routeControl) {
+        map.removeLayer(routeControl);
+        routeControl = null;
+      }
+      kPathLines.forEach(line => map.removeLayer(line));
+      kPathLines = [];
+
+      // Fetch shortest path (Dijkstra)
+      const dijkstraRes = await fetch("http://127.0.0.1:8000/dijkstra", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ start: from, end: to, vehicle: "two-wheeler" })  // delivery boys use two-wheelers
+      });
+      const dijkstra = await dijkstraRes.json();
+
+      const dijkstraTable = document.getElementById("dijkstraTable");
+      dijkstraTable.style.display = "table";
+      dijkstraTable.querySelector("tbody").innerHTML = `
+        <tr>
+          <td>${dijkstra.path.join(" → ")}</td>
+          <td>${dijkstra.cost}</td>
+        </tr>`;
+
+      // Fetch K shortest paths
+      const kRes = await fetch("http://127.0.0.1:8000/k-shortest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ start: from, end: to, k: 3, vehicle: "two-wheeler" })
+      });
+      const kPaths = await kRes.json();
+
+      const kTable = document.getElementById("kPathsTable");
+      kTable.style.display = "table";
+      const kBody = kTable.querySelector("tbody");
+      kBody.innerHTML = "";
+      kPaths.paths.forEach((p, idx) => {
+        kBody.innerHTML += `
+          <tr>
+            <td>${idx + 1}</td>
+            <td>${p.path.join(" → ")}</td>
+            <td>${p.cost}</td>
+          </tr>`;
+      });
+
+      // Geocode Dijkstra path to latlngs
+      const dijkstraLatLngs = await placesToLatLngs(dijkstra.path);
+
+      if (dijkstraLatLngs.length >= 2) {
+        // Show main shortest path as a polyline in blue
+        routeControl = L.polyline(dijkstraLatLngs, {color: 'blue', weight: 6, opacity: 0.7}).addTo(map);
+        map.fitBounds(routeControl.getBounds());
+      } else {
+        alert("Could not plot shortest path on map.");
+        map.setView([30.3165, 78.0322], 13);
+      }
+
+      // Plot K shortest paths in different colors (excluding first if same as Dijkstra) 
+      for (let i = 0; i < kPaths.paths.length; i++) {
+        const p = kPaths.paths[i];
+        const latlngs = await placesToLatLngs(p.path);
+        if (latlngs.length < 2) continue;
+
+        // Skip if identical to Dijkstra main path
+        if (p.path.join() === dijkstra.path.join()) continue;
+
+        const color = colors[i % colors.length];
+        const polyline = L.polyline(latlngs, {color, weight: 4, opacity: 0.6}).addTo(map);
+        kPathLines.push(polyline);
+      }
+    });
+  </script>
+</body>
+</html>
+
+

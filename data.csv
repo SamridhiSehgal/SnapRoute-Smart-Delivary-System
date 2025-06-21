@@ -1,0 +1,38 @@
+node,lat,lng,neighbor1,weight1,neighbor2,weight2,neighbor3,weight3,neighbor4,weight4
+Dharampur,30.3200,78.0300,Jakhan,11,Railway Station,14,Karanpur,2,Defence Colony,2
+Subhash Nagar,30.3210,78.0310,Vasant Vihar,11,Kaulagarh,8,Mothrowala,6,,
+Clement Town,30.3220,78.0320,Railway Station,6,Buddhi Vihar,13,Pacific Mall,6,,
+Kargi Chowk,30.3230,78.0330,Doiwala,12,EC Road,9,Vidhan Sabha,6,Doiwala,5
+Jakhan,30.3240,78.0340,Aman Vihar,14,Niranjanpur,11,Subhash Nagar,12,,
+Sahastradhara,30.3250,78.0350,Mothrowala,10,,,,,
+ISBT,30.3260,78.0360,Vasant Vihar,12,Premnagar,14,Mussoorie Diversion,5,Mussoorie Diversion,11
+Turner Road,30.3270,78.0370,Vidhan Sabha,12,Chukkuwala,14,Kaulagarh,11,Ballupur,12
+Buddhi Vihar,30.3280,78.0380,Pondha,3,Aman Vihar,5,Kargi Chowk,9,GMS Road,6
+Pacific Mall,30.3290,78.0390,Khalanga,12,Khalanga,12,,,,
+Karanpur,30.3300,78.0400,Aman Vihar,6,,,,,
+Majra,30.3310,78.0410,EC Road,9,Vidhan Sabha,2,ISBT,10,Khalanga,4
+Khalanga,30.3320,78.0420,Lachhiwala,14,Kaulagarh,7,,,,
+Vasant Vihar,30.3330,78.0430,Jakhan,12,Buddhi Vihar,7,Vidhan Sabha,8,Selaqui,13
+Tapkeshwar,30.3340,78.0440,Aman Vihar,2,Defence Colony,7,Vasant Vihar,2,Raipur,5
+Railway Station,30.3350,78.0450,Chukkuwala,5,Race Course,4,GMS Road,9,,
+Ashley Hall,30.3360,78.0460,Buddhi Vihar,12,Tapkeshwar,11,Karanpur,4,ISBT,6
+GMS Road,30.3370,78.0470,Raipur,6,Lachhiwala,3,Ballupur,12,Race Course,8
+Mothrowala,30.3380,78.0480,Aman Vihar,11,ISBT,3,Buddhi Vihar,4,Dalanwala,9
+Pondha,30.3390,78.0490,Race Course,11,Defence Colony,13,Sahastradhara,8,Vidhan Sabha,6
+Indira Nagar,30.3400,78.0500,Turner Road,12,Race Course,2,,,,
+Ballupur,30.3410,78.0510,Aman Vihar,8,Jakhan,3,,,,
+Mussoorie Diversion,30.3420,78.0520,Indira Nagar,8,Clement Town,4,Raipur,4,,
+Lachhiwala,30.3430,78.0530,Chukkuwala,13,Selaqui,12,,,,
+Race Course,30.3440,78.0540,Kargi Chowk,12,Tapkeshwar,5,Doiwala,10,,
+Clock Tower,30.3450,78.0550,Chukkuwala,3,Doiwala,10,Kaulagarh,13,Sahastradhara,12
+Rajpur Road,30.3460,78.0560,Vidhan Sabha,4,Khalanga,3,Pondha,7,,
+Selaqui,30.3470,78.0570,Railway Station,9,Sahastradhara,3,,,,
+Vidhan Sabha,30.3480,78.0580,Railway Station,9,Mothrowala,9,,,,
+Aman Vihar,30.3490,78.0590,EC Road,12,Vasant Vihar,6,,,,
+Doiwala,30.3500,78.0600,Mothrowala,12,Dalanwala,13,,,,
+Defence Colony,30.3510,78.0610,Aman Vihar,9,Rajpur Road,7,Dharampur,8,,
+EC Road,30.3520,78.0620,Dharampur,13,Niranjanpur,14,,,,
+Chukkuwala,30.3530,78.0630,Rajpur Road,12,Clement Town,8,Subhash Nagar,5,,
+Dalanwala,30.3540,78.0640,Subhash Nagar,2,,,,,
+Kaulagarh,30.3550,78.0650,Lachhiwala,5,,,,,
+Premnagar,30.3560,78.0660,Jakhan,4,Clock Tower,3,,,,
